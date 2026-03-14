@@ -72,3 +72,59 @@ LEFT JOIN provider p ON sd.provider_id = p.provider_id
 LEFT JOIN responsibility r ON s.service_id = r.service_id
 LEFT JOIN contact c ON r.contact_id = c.contact_id
 ORDER BY s.name, a.name;
+
+
+-- QUERY 7: Controlli inclusi nel profilo target
+SELECT
+    p.profile_name,
+    c.code AS control_code,
+    c.name AS control_name,
+    c.control_type
+FROM profile p
+JOIN profile_control pc ON p.profile_id = pc.profile_id
+JOIN control c ON pc.control_id = c.control_id
+WHERE p.profile_type = 'TARGET'
+ORDER BY p.profile_name, c.code;
+
+
+-- QUERY 8: Stato dei controlli nel profilo attuale
+SELECT
+    p.profile_name,
+    c.code AS control_code,
+    c.name AS control_name,
+    pc.implementation_level,
+    pc.maturity_level,
+    pc.notes
+FROM profile p
+JOIN profile_control pc ON p.profile_id = pc.profile_id
+JOIN control c ON pc.control_id = c.control_id
+WHERE p.profile_type = 'CURRENT'
+ORDER BY c.code;
+
+
+-- QUERY 9: Controlli associati agli asset
+SELECT
+    a.name AS asset_name,
+    a.asset_type,
+    c.code AS control_code,
+    c.name AS control_name,
+    ac.applicability_notes
+FROM asset a
+JOIN asset_control ac ON a.asset_id = ac.asset_id
+JOIN control c ON ac.control_id = c.control_id
+ORDER BY a.name, c.code;
+
+
+-- QUERY 10: Mapping completo controllo, subcategory e asset
+SELECT
+    c.code AS control_code,
+    c.name AS control_name,
+    s.code AS subcategory_code,
+    s.title AS subcategory_title,
+    a.name AS asset_name
+FROM control c
+JOIN control_subcategory cs ON c.control_id = cs.control_id
+JOIN subcategory s ON cs.subcategory_id = s.subcategory_id
+LEFT JOIN asset_control ac ON c.control_id = ac.control_id
+LEFT JOIN asset a ON ac.asset_id = a.asset_id
+ORDER BY c.code, s.code, a.name;

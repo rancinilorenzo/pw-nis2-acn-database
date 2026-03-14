@@ -144,7 +144,81 @@ CREATE TABLE asset_history (
         ON DELETE CASCADE
 );
 
+CREATE TABLE subcategory (
+    subcategory_id SERIAL PRIMARY KEY,
+    code VARCHAR(30) NOT NULL UNIQUE,
+    title VARCHAR(200) NOT NULL,
+    description TEXT
+);
+
+CREATE TABLE control (
+    control_id SERIAL PRIMARY KEY,
+    code VARCHAR(30) NOT NULL UNIQUE,
+    name VARCHAR(200) NOT NULL,
+    description TEXT,
+    control_type VARCHAR(50)
+);
+
+CREATE TABLE control_subcategory (
+    control_id INT NOT NULL,
+    subcategory_id INT NOT NULL,
+    PRIMARY KEY (control_id, subcategory_id),
+    CONSTRAINT fk_control_subcategory_control
+        FOREIGN KEY (control_id) REFERENCES control(control_id)
+        ON DELETE CASCADE,
+    CONSTRAINT fk_control_subcategory_subcategory
+        FOREIGN KEY (subcategory_id) REFERENCES subcategory(subcategory_id)
+        ON DELETE CASCADE
+);
+
+CREATE TABLE profile (
+    profile_id SERIAL PRIMARY KEY,
+    organization_id INT NOT NULL,
+    profile_name VARCHAR(150) NOT NULL,
+    profile_type VARCHAR(20) NOT NULL,
+    description TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_profile_organization
+        FOREIGN KEY (organization_id) REFERENCES organization(organization_id)
+        ON DELETE CASCADE,
+    CONSTRAINT chk_profile_type
+        CHECK (profile_type IN ('TARGET', 'CURRENT'))
+);
+
+CREATE TABLE profile_control (
+    profile_id INT NOT NULL,
+    control_id INT NOT NULL,
+    implementation_level VARCHAR(50),
+    maturity_level VARCHAR(50),
+    notes TEXT,
+    PRIMARY KEY (profile_id, control_id),
+    CONSTRAINT fk_profile_control_profile
+        FOREIGN KEY (profile_id) REFERENCES profile(profile_id)
+        ON DELETE CASCADE,
+    CONSTRAINT fk_profile_control_control
+        FOREIGN KEY (control_id) REFERENCES control(control_id)
+        ON DELETE CASCADE
+);
+
+CREATE TABLE asset_control (
+    asset_id INT NOT NULL,
+    control_id INT NOT NULL,
+    applicability_notes TEXT,
+    PRIMARY KEY (asset_id, control_id),
+    CONSTRAINT fk_asset_control_asset
+        FOREIGN KEY (asset_id) REFERENCES asset(asset_id)
+        ON DELETE CASCADE,
+    CONSTRAINT fk_asset_control_control
+        FOREIGN KEY (control_id) REFERENCES control(control_id)
+        ON DELETE CASCADE
+);
+
 CREATE INDEX idx_asset_criticality ON asset(criticality);
 CREATE INDEX idx_service_criticality ON service(criticality);
 CREATE INDEX idx_provider_type ON provider(provider_type);
 CREATE INDEX idx_dependency_service ON service_dependency(service_id);
+CREATE INDEX idx_profile_organization ON profile(organization_id);
+CREATE INDEX idx_profile_type ON profile(profile_type);
+CREATE INDEX idx_profile_control_control ON profile_control(control_id);
+CREATE INDEX idx_asset_control_control ON asset_control(control_id);
+CREATE INDEX idx_control_type ON control(control_type);
