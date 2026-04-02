@@ -35,7 +35,11 @@ LEFT JOIN service_dependency sd
 LEFT JOIN provider pr
     ON sd.provider_id = pr.provider_id
 LEFT JOIN responsibility r
-    ON s.service_id = r.service_id
+    ON (
+        (r.service_id IS NOT NULL AND s.service_id = r.service_id)
+        OR
+        (r.asset_id IS NOT NULL AND a.asset_id = r.asset_id)
+    )
 LEFT JOIN contact c
     ON r.contact_id = c.contact_id
 LEFT JOIN profile pfo

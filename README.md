@@ -4,13 +4,18 @@ Progetto PostgreSQL per la gestione strutturata di asset, servizi, dipendenze es
 
 ## Contenuto repository
 
-- `schema.sql` : definizione dello schema relazionale
-- `seed.sql` : dati di test
-- `queries.sql` : query di interrogazione
+- `schema.sql` : definizione completa dello schema relazionale
+- `seed.sql` : dati di test simulati
+- `queries.sql` : query di interrogazione ed esempio
 - `export_view.sql` : vista per output strutturato esportabile
 - `versioning.sql` : trigger e funzione per storico modifiche asset
 - `data-dictionary.md` : descrizione delle tabelle e dei campi
 - `README.md` : panoramica del progetto
+- `ER Diagram NIS2 ACN.png` : diagramma ER del modello
+
+## Nota sui file SQL modulari
+
+Nel repository sono presenti anche alcuni file SQL modulari dedicati a specifiche tabelle della parte di assessment, come `control.sql`, `subcategory.sql`, `control_subcategory.sql`, `profile.sql`, `profile_control.sql` e `asset_control.sql`. Questi file rappresentano estratti separati del modello già incluso integralmente in `schema.sql` e sono stati mantenuti per una migliore leggibilità e organizzazione del progetto. Per l’installazione completa del database è sufficiente eseguire `schema.sql`, senza lanciare separatamente i file modulari sopra indicati.
 
 ## Ordine di esecuzione
 
@@ -23,7 +28,7 @@ Progetto PostgreSQL per la gestione strutturata di asset, servizi, dipendenze es
 
 ## Oggetto del progetto
 
-Il database consente di rappresentare:
+Il database consente di rappresentare in modo strutturato:
 
 - organizzazione
 - contatti
@@ -39,9 +44,9 @@ Il database consente di rappresentare:
 
 ## Struttura logica del modello
 
-Il modello è costruito per unire due dimensioni:
+Il modello è costruito per unire due dimensioni principali:
 
-1. **dimensione inventariale e organizzativa**, che comprende asset, servizi, provider, dipendenze e responsabilità
+1. **dimensione inventariale e organizzativa**, che comprende asset, servizi, provider, dipendenze e responsabilità  
 2. **dimensione di assessment**, che comprende subcategory, controlli, profili e associazioni tra controlli e asset
 
 In questo modo il database non si limita a conservare un inventario tecnico, ma permette anche di rappresentare il profilo di sicurezza dell’organizzazione secondo una logica coerente con il Framework Nazionale.
@@ -65,11 +70,16 @@ Le query incluse nel repository permettono di analizzare:
 
 - asset critici
 - servizi attivi
+- servizi con asset associati
 - dipendenze esterne
 - responsabilità e contatti associati
 - controlli inclusi nel profilo target
 - stato dei controlli nel profilo attuale
 - associazione tra asset, controlli e subcategory
+
+## Output strutturato
+
+La vista `vw_acn_profile_export`, definita in `export_view.sql`, è pensata per raccogliere in forma denormalizzata le principali informazioni su organizzazione, servizi, asset, dipendenze, contatti, controlli e profili. Questa scelta facilita la consultazione e l’esportazione dei dati in formato strutturato, anche se può produrre più righe in presenza di relazioni multiple tra gli elementi del modello.
 
 ## Finalità del progetto
 

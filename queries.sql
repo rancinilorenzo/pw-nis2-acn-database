@@ -69,10 +69,14 @@ LEFT JOIN service_asset sa ON s.service_id = sa.service_id
 LEFT JOIN asset a ON sa.asset_id = a.asset_id
 LEFT JOIN service_dependency sd ON s.service_id = sd.service_id
 LEFT JOIN provider p ON sd.provider_id = p.provider_id
-LEFT JOIN responsibility r ON s.service_id = r.service_id
+LEFT JOIN responsibility r
+    ON (
+        (r.service_id IS NOT NULL AND s.service_id = r.service_id)
+        OR
+        (r.asset_id IS NOT NULL AND a.asset_id = r.asset_id)
+    )
 LEFT JOIN contact c ON r.contact_id = c.contact_id
 ORDER BY s.name, a.name;
-
 
 -- QUERY 7: Controlli inclusi nel profilo target
 SELECT
